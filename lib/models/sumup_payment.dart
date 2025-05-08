@@ -1,3 +1,5 @@
+import 'package:sumup/enum/sumup_payment_method.dart';
+
 /// Payment object.
 class SumupPayment {
   SumupPayment({
@@ -12,6 +14,7 @@ class SumupPayment {
     this.saleItemsCount = 0,
     this.customerEmail,
     this.customerPhone,
+    this.paymentMethod = SumupPaymentMethod.terminal,
   }) : assert(!tipOnCardReader || tip == 0,
             'If [tipOnCardReader] is true, [tip] must be zero. The two options are mutually exclusive.');
 
@@ -52,6 +55,11 @@ class SumupPayment {
   /// Android only (see https://github.com/sumup/sumup-ios-sdk/issues/74)
   String? customerPhone;
 
+  /// Payment method to be used for the transaction.
+  /// terminal (0): Use physical card terminal
+  /// tapToPay (1): Use tap-to-pay functionality on supported devices
+  SumupPaymentMethod paymentMethod;
+
   Map<String, dynamic> toMap() => {
         'total': total,
         'title': title,
@@ -64,5 +72,6 @@ class SumupPayment {
         'saleItemsCount': saleItemsCount,
         'customerEmail': customerEmail,
         'customerPhone': customerPhone,
+        'paymentMethod': paymentMethod.value,
       };
 }

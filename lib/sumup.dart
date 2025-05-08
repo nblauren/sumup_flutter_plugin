@@ -167,4 +167,35 @@ class Sumup {
     final method = await _channel.invokeMethod('logout');
     return SumupPluginResponse.fromMap(method);
   }
+
+  /// Checks if Tap to Pay is available and activated on the device.
+  ///
+  /// Only available on iOS. Will fail on Android.
+  /// Login required.
+  ///
+  /// Returns a map containing:
+  /// - isAvailable: Whether Tap to Pay is available for the merchant
+  /// - isActivated: Whether Tap to Pay is activated on the device
+  /// - error: Error message if any
+  static Future<SumupPluginResponse> checkTapToPayAvailability() async {
+    _throwIfNotInitialized();
+    await _throwIfNotLoggedIn();
+    final method = await _channel.invokeMethod('checkTapToPayAvailability');
+    return SumupPluginResponse.fromMap(method);
+  }
+
+  /// Presents the Tap to Pay activation screen.
+  ///
+  /// Only available on iOS. Will fail on Android.
+  /// Login required.
+  ///
+  /// Returns a map containing:
+  /// - success: Whether activation was successful
+  /// - error: Error message if any
+  static Future<SumupPluginResponse> presentTapToPayActivation() async {
+    _throwIfNotInitialized();
+    await _throwIfNotLoggedIn();
+    final method = await _channel.invokeMethod('presentTapToPayActivation');
+    return SumupPluginResponse.fromMap(method);
+  }
 }

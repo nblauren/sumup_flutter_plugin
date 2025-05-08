@@ -76,6 +76,9 @@ public class SwiftSumupPlugin: NSObject, FlutterPlugin {
             }
             
             request.saleItemsCount = payment["saleItemsCount"] as! UInt
+
+            let paymentMethodValue = payment["paymentMethod"] as! Int
+            request.paymentMethod = PaymentMethod(rawValue: paymentMethodValue)!
             
             if payment["skipSuccessScreen"] as! Bool {
                 request.skipScreenOptions.update(with: SkipScreenOptions.success)
@@ -124,6 +127,27 @@ public class SwiftSumupPlugin: NSObject, FlutterPlugin {
             pluginResponse.message = ["result": isInProgress]
             pluginResponse.status = isInProgress
             result(pluginResponse.toDictionary())
+
+        case "checkTapToPayAvailability":
+            self.checkTapToPayAvailability { isAvailable, isActivated, errorMessage in
+                pluginResponse.message = [
+                    "isAvailable": isAvailable,
+                    "isActivated": isActivated,
+                    "error": errorMessage ?? ""
+                ]
+                pluginResponse.status = errorMessage == nil
+                result(pluginResponse.toDictionary())
+            }
+            
+        case "presentTapToPayActivation":
+            self.presentTapToPayActivation { success, errorMessage in
+                pluginResponse.message = [
+                    "success": success,
+                    "error": errorMessage ?? ""
+                ]
+                pluginResponse.status = success
+                result(pluginResponse.toDictionary())
+            }
         
         case "isTipOnCardReaderAvailable":
             let isAvailable = self.isTipOnCardReaderAvailable()
@@ -237,6 +261,28 @@ public class SwiftSumupPlugin: NSObject, FlutterPlugin {
     
     private func isTipOnCardReaderAvailable() -> Bool {
         return SumUpSDK.isTipOnCardReaderAvailable
+    }
+
+    private func checkTapToPayAvailability(completion: @escaping ((Bool, Bool, String?) -> Void)) {
+        SumUpSDK.checkTapToPayAvailability { isAvailable, isActivated, error in
+            if let error = error {
+                completion(false, false, error.localizedDescription)
+                return
+            }
+            
+            completion(isAvailable, isActivated, nil)
+        }
+    }
+    
+    private func presentTapToPayActivation(completion: @escaping ((Bool, String?) -> Void)) {
+        SumUpSDK.presentTapToPayActivation(from: topController(), animated: true) { success, error in
+            if let error = error {
+                completion(false, error.localizedDescription)
+                return
+            }
+            
+            completion(success, nil)
+        }
     }
     
     private func logout(completion: @escaping ((Bool) -> Void)) {
